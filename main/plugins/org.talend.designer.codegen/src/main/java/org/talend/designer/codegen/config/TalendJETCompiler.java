@@ -22,6 +22,8 @@ import org.eclipse.emf.codegen.jet.JETCompiler;
 import org.eclipse.emf.codegen.jet.JETException;
 import org.eclipse.emf.codegen.jet.JETMark;
 import org.osgi.framework.Bundle;
+import org.talend.commons.CommonsPlugin;
+import org.talend.commons.exception.ExceptionHandler;
 
 /**
  * ggu class global comment. Detailled comment
@@ -91,21 +93,25 @@ public class TalendJETCompiler extends JETCompiler {
 
     @SuppressWarnings("deprecation")
     private String checkAndReplace(String fileURI) {
-        if (fileURI != null) {
-            Matcher matcher = PLUGIN_VAR_PATTERN.matcher(fileURI);
-            if (matcher.find()) {
-                // get the plugin name from fileURI
-                String refPluginName = matcher.group(1);
-                // retrieve the plugin URI by pluginName.
-                Bundle refBundle = Platform.getBundle(refPluginName);
-                if (refBundle != null) {
-                    String realURI = Platform.getPlugin(refPluginName).getDescriptor().getInstallURL().toString();
-                    // replace the old fileURI to new one by pluginURI
-                    String newFileURI = fileURI.replaceFirst(PLUGIN_VAR_PATTERN.pattern(), realURI);
-                    return newFileURI;
+        try {
+            if (fileURI != null) {
+                Matcher matcher = PLUGIN_VAR_PATTERN.matcher(fileURI);
+                if (matcher.find()) {
+                    // get the plugin name from fileURI
+                    String refPluginName = matcher.group(1);
+                    // retrieve the plugin URI by pluginName.
+                    Bundle refBundle = Platform.getBundle(refPluginName);
+                    if (refBundle != null) {
+                        String realURI = CommonsPlugin.getBundleRealURL(refPluginName).toString();
+                        // replace the old fileURI to new one by pluginURI
+                        String newFileURI = fileURI.replaceFirst(PLUGIN_VAR_PATTERN.pattern(), realURI);
+                        return newFileURI;
 
+                    }
                 }
             }
+        } catch (Throwable e) {
+            ExceptionHandler.process(e);
         }
         return null; // not replace
     }

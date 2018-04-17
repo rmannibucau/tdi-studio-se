@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.runtime.Platform;
+import org.talend.commons.CommonsPlugin;
+import org.talend.commons.exception.ExceptionHandler;
 import org.talend.commons.utils.StringUtils;
 
 /**
@@ -393,7 +395,12 @@ public class JetBean {
     }
 
     public String getFullTemplatePath() {
-        return Platform.getPlugin(getJetPluginRepository()).getDescriptor().getInstallURL().toString() + getTemplateRelativeUri();
+        try {
+            return CommonsPlugin.getBundleRealURL(getJetPluginRepository()).toString() + getTemplateRelativeUri();
+        } catch (Throwable e) {
+            ExceptionHandler.process(e);
+        }
+        return null;
     }
 
     public String getGenerationError() {

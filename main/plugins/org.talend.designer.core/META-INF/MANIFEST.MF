@@ -8,7 +8,6 @@ Bundle-ClassPath: .
 Bundle-Activator: org.talend.designer.core.DesignerPlugin
 Require-Bundle: org.talend.model,
  org.eclipse.osgi.services,
- org.eclipse.core.runtime.compatibility,
  org.eclipse.jface.text,
  org.eclipse.ui.ide,
  org.eclipse.ui.editors,
