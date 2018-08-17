@@ -63,6 +63,7 @@ import org.talend.core.model.process.TraceData;
 import org.talend.core.model.properties.Property;
 import org.talend.core.model.runprocess.IEclipseProcessor;
 import org.talend.core.model.runprocess.data.PerformanceData;
+import org.talend.core.model.utils.TalendTextUtils;
 import org.talend.core.runtime.process.TalendProcessArgumentConstant;
 import org.talend.designer.core.model.components.EParameterName;
 import org.talend.designer.core.ui.editor.jobletcontainer.JobletContainer;
@@ -213,12 +214,16 @@ public class RunProcessContext {
     }
 
     public void initialize() {
-        setMonitorPerf(RunProcessPlugin.getDefault().getPreferenceStore().getBoolean(RunProcessPrefsConstants.ISSTATISTICSRUN));
-        setMonitorTrace(RunProcessPlugin.getDefault().getPreferenceStore().getBoolean(RunProcessPrefsConstants.ISTRACESRUN));
-        setWatchAllowed(RunProcessPlugin.getDefault().getPreferenceStore().getBoolean(RunProcessPrefsConstants.ISEXECTIMERUN));
-        setSaveBeforeRun(RunProcessPlugin.getDefault().getPreferenceStore().getBoolean(RunProcessPrefsConstants.ISSAVEBEFORERUN));
-        setClearBeforeExec(
-                RunProcessPlugin.getDefault().getPreferenceStore().getBoolean(RunProcessPrefsConstants.ISCLEARBEFORERUN));
+        setMonitorPerf(RunProcessPlugin.getDefault().getPreferenceStore().getBoolean(
+                RunProcessPrefsConstants.ISSTATISTICSRUN));
+        setMonitorTrace(
+                RunProcessPlugin.getDefault().getPreferenceStore().getBoolean(RunProcessPrefsConstants.ISTRACESRUN));
+        setWatchAllowed(
+                RunProcessPlugin.getDefault().getPreferenceStore().getBoolean(RunProcessPrefsConstants.ISEXECTIMERUN));
+        setSaveBeforeRun(RunProcessPlugin.getDefault().getPreferenceStore().getBoolean(
+                RunProcessPrefsConstants.ISSAVEBEFORERUN));
+        setClearBeforeExec(RunProcessPlugin.getDefault().getPreferenceStore().getBoolean(
+                RunProcessPrefsConstants.ISCLEARBEFORERUN));
         loadLog4jContextFromProcess();
     }
 
@@ -503,7 +508,8 @@ public class RunProcessContext {
      */
     public void exec(final Shell shell) {
         if (process instanceof org.talend.designer.core.ui.editor.process.Process) {
-            org.talend.designer.core.ui.editor.process.Process prs = (org.talend.designer.core.ui.editor.process.Process) process;
+            org.talend.designer.core.ui.editor.process.Process prs =
+                    (org.talend.designer.core.ui.editor.process.Process) process;
             prs.checkDifferenceWithRepository();
         }
         checkTraces();
@@ -538,7 +544,8 @@ public class RunProcessContext {
 
                         final IProgressMonitor progressMonitor = new EventLoopProgressMonitor(monitor);
 
-                        progressMonitor.beginTask(Messages.getString("ProcessComposite.buildTask"), IProgressMonitor.UNKNOWN); //$NON-NLS-1$
+                        progressMonitor.beginTask(Messages.getString("ProcessComposite.buildTask"), //$NON-NLS-1$
+                                IProgressMonitor.UNKNOWN);
 
                         testPort();
                         // findNewStatsPort();
@@ -566,28 +573,29 @@ public class RunProcessContext {
                             }
                         }
 
-                        final String watchParam = RunProcessContext.this.isWatchAllowed()
-                                ? TalendProcessArgumentConstant.CMD_ARG_WATCH
-                                : null;
+                        final String watchParam =
+                                RunProcessContext.this.isWatchAllowed() ? TalendProcessArgumentConstant.CMD_ARG_WATCH
+                                        : null;
                         final String log4jRuntimeLevel = getLog4jRuntimeLevel();
                         processor.setContext(context);
                         ((IEclipseProcessor) processor).setTargetExecutionConfig(getSelectedTargetExecutionConfig());
 
                         final boolean oldMeasureActived = TimeMeasure.measureActive;
                         if (!oldMeasureActived) { // not active before.
-                            TimeMeasure.display = TimeMeasure.displaySteps = TimeMeasure.measureActive = CommonsPlugin
-                                    .isDebugMode();
+                            TimeMeasure.display =
+                                    TimeMeasure.displaySteps = TimeMeasure.measureActive = CommonsPlugin.isDebugMode();
                         }
                         final String generateCodeId = "Generate job source codes and compile before run"; //$NON-NLS-1$
                         TimeMeasure.begin(generateCodeId);
                         try {
                             BuildCacheManager.getInstance().clearCurrentCache();
                             ProcessorUtilities.resetExportConfig();
-                            ProcessorUtilities.generateCode(processor, process, context,
-                                    getStatisticsPort() != IProcessor.NO_STATISTICS,
-                                    getTracesPort() != IProcessor.NO_TRACES && (isMemoryRunning ? true : hasConnectionTrace()),
-                                    true,
-                                    progressMonitor);
+                            ProcessorUtilities
+                                    .generateCode(processor, process, context,
+                                            getStatisticsPort() != IProcessor.NO_STATISTICS,
+                                            getTracesPort() != IProcessor.NO_TRACES
+                                                    && (isMemoryRunning ? true : hasConnectionTrace()),
+                                            true, progressMonitor);
                         } catch (Throwable e) {
                             BuildCacheManager.getInstance().performBuildFailure();
                             PomUtil.restorePomFile(processor.getTalendJavaProject());
@@ -637,14 +645,33 @@ public class RunProcessContext {
 
                                                 startingMessageWritten = true;
 
-                                                final String startingPattern = Messages
-                                                        .getString("ProcessComposite.startPattern"); //$NON-NLS-1$
+                                                final String startingPattern =
+                                                        Messages.getString("ProcessComposite.startPattern"); //$NON-NLS-1$
                                                 MessageFormat mf = new MessageFormat(startingPattern);
-                                                String welcomeMsg = mf.format(new Object[] { process.getLabel(), new Date() });
-                                                processMessageManager
-                                                        .addMessage(new ProcessMessage(MsgType.CORE_OUT, welcomeMsg + "\r\n")); //$NON-NLS-1$
+                                                String welcomeMsg =
+                                                        mf.format(new Object[] { process.getLabel(), new Date() });
+                                                processMessageManager.addMessage(
+                                                        new ProcessMessage(MsgType.CORE_OUT, welcomeMsg + "\r\n")); //$NON-NLS-1$
                                                 processMonitorThread = new Thread(psMonitor);
                                                 processMonitorThread.start();
+                                                // Local link for testing ESB related jobs
+                                                if (!process.getNodesOfType("tRESTRequest").isEmpty()) {
+                                                    INode node = process.getNodesOfType("tRESTRequest").get(0);
+                                                    IElementParameter endPointParameter =
+                                                            node.getElementParameter("REST_ENDPOINT");
+                                                    String value = TalendTextUtils
+                                                            .removeQuotes(String.valueOf(endPointParameter.getValue()));
+                                                    if (value != null && !value.startsWith("http"))
+                                                        value = String
+                                                                .valueOf(System.getProperties().get(
+                                                                        "restServiceDefaultUri"))
+                                                                .concat(value);
+
+                                                    processMessageManager.addMessage(new ProcessMessage(
+                                                            MsgType.CORE_OUT,
+                                                            "Click here to open API Tester with this running implementation: https://api-apid-service.eap.cloud.talend.com/api/projects/{id}/tryinclient?url="
+                                                                    + value));
+                                                }
                                             } else {
                                                 kill();
                                                 running = true;
@@ -706,7 +733,8 @@ public class RunProcessContext {
     }
 
     protected PerformanceMonitor getPerformanceMonitor() {
-        if (isESBRuntimeProcessor() && ComponentCategory.CATEGORY_4_CAMEL.getName().equals(process.getComponentsType())) {
+        if (isESBRuntimeProcessor()
+                && ComponentCategory.CATEGORY_4_CAMEL.getName().equals(process.getComponentsType())) {
             return new JMXPerformanceMonitor();
         }
         return new PerformanceMonitor();
@@ -1180,7 +1208,8 @@ public class RunProcessContext {
             }
         }
 
-        private void processPerformanceForConnection(final String data, final PerformanceData perfData, final IConnection conn) {
+        private void processPerformanceForConnection(final String data, final PerformanceData perfData,
+                final IConnection conn) {
             if (conn != null && conn instanceof IPerformance) {
                 final IPerformance performance = (IPerformance) conn;
                 if (!performanceDataSet.contains(performance)) {
@@ -1256,7 +1285,8 @@ public class RunProcessContext {
                 public void performancesChanged(String connId, int exchangesCompleted) {
                     long duration = System.currentTimeMillis() - startTime;
                     final IConnection conn = traceConnectionsManager.finConnectionByUniqueName(connId);
-                    final PerformanceData perfData = new PerformanceData(connId + "|" + exchangesCompleted + "|" + duration);
+                    final PerformanceData perfData =
+                            new PerformanceData(connId + "|" + exchangesCompleted + "|" + duration);
                     processPerformances(connId + "|" + exchangesCompleted + "|" + duration, perfData, conn);
                     startTime = System.currentTimeMillis();
                 }
@@ -1311,7 +1341,8 @@ public class RunProcessContext {
             Socket processSocket = null;
             ServerSocket serverSock = null;
             // used for trace of tmap
-            final Map<IConnection, Map<String, TraceData>> connAndTraces = new HashMap<IConnection, Map<String, TraceData>>();
+            final Map<IConnection, Map<String, TraceData>> connAndTraces =
+                    new HashMap<IConnection, Map<String, TraceData>>();
             do {
                 try {
                     serverSock = new ServerSocket(getTracesPort());
@@ -1351,7 +1382,8 @@ public class RunProcessContext {
                     final List<Map<String, TraceData>> connectionData = new ArrayList<Map<String, TraceData>>();
                     while (!stopThread) {
                         final Object data = reader.readObject();
-                        NoHeaderObjectOutputStream pred = new NoHeaderObjectOutputStream(processSocket.getOutputStream());
+                        NoHeaderObjectOutputStream pred =
+                                new NoHeaderObjectOutputStream(processSocket.getOutputStream());
 
                         // System.out.println(data);
 
@@ -1402,8 +1434,8 @@ public class RunProcessContext {
                                     for (int b = 0; b < connectionSize.size(); b++) {
                                         if ((dataSize - readSize < connectionData.size())) {
                                             if (readSize >= 0) {
-                                                final Map<String, TraceData> nextRowTrace = connectionData
-                                                        .get(dataSize - readSize);
+                                                final Map<String, TraceData> nextRowTrace =
+                                                        connectionData.get(dataSize - readSize);
                                                 if (nextRowTrace != null) {
                                                     String connectionId = null;
                                                     for (String key : nextRowTrace.keySet()) {
@@ -1450,7 +1482,8 @@ public class RunProcessContext {
                                 for (int b = 0; b < connectionSize.size(); b++) {
                                     readSize = readSize + 1;
                                     if (dataSize - readSize >= 0) {
-                                        final Map<String, TraceData> previousRowTrace = connectionData.get(dataSize - readSize);
+                                        final Map<String, TraceData> previousRowTrace =
+                                                connectionData.get(dataSize - readSize);
                                         if (previousRowTrace != null) {
                                             String connectionId = null;
                                             for (String key : previousRowTrace.keySet()) {
@@ -1458,8 +1491,8 @@ public class RunProcessContext {
                                                     connectionId = key;
                                                 }
                                             }
-                                            final IConnection connection = traceConnectionsManager
-                                                    .finConnectionByUniqueName(connectionId);
+                                            final IConnection connection =
+                                                    traceConnectionsManager.finConnectionByUniqueName(connectionId);
                                             if (connection != null) {
                                                 if (!connectionSize.contains(connection)) {
                                                     connectionSize.add(connection);
@@ -1889,8 +1922,9 @@ public class RunProcessContext {
                 List<? extends ISubjobContainer> subjobContainers = process.getSubjobContainers();
                 for (ISubjobContainer subjobContainer : subjobContainers) {
                     if (subjobContainer instanceof SparkStreamingSubjobContainer) {
-                        ((SparkStreamingSubjobContainer) subjobContainer).updateState("UPDATE_SPARKSTREAMING_STATUS", null, //$NON-NLS-1$
-                                batchCompleted, batchStarted, lastProcessingDelay, lastSchedulingDelay, lastTotalDelay);
+                        ((SparkStreamingSubjobContainer) subjobContainer).updateState("UPDATE_SPARKSTREAMING_STATUS", //$NON-NLS-1$
+                                null, batchCompleted, batchStarted, lastProcessingDelay, lastSchedulingDelay,
+                                lastTotalDelay);
                     }
                 }
             }
@@ -1933,8 +1967,8 @@ public class RunProcessContext {
                         if (((Node) node).getNodeContainer() instanceof JobletContainer) {
                             ((JobletContainer) ((Node) node).getNodeContainer()).setMrName(mrName);
                             if (((Node) node).isMapReduceStart()) {
-                                ((JobletContainer) ((Node) node).getNodeContainer()).updateState("UPDATE_STATUS", mrName, //$NON-NLS-1$
-                                        percentMap, percentReduce);
+                                ((JobletContainer) ((Node) node).getNodeContainer()).updateState("UPDATE_STATUS", //$NON-NLS-1$
+                                        mrName, percentMap, percentReduce);
                             }
                         }
                     }
@@ -1950,7 +1984,8 @@ public class RunProcessContext {
         } else {
             RunProcessPlugin.getDefault().getPreferenceStore().setValue(RunProcessPrefsConstants.CUSTOMLOG4J, false);
         }
-        setUseCustomLevel(RunProcessPlugin.getDefault().getPreferenceStore().getBoolean(RunProcessPrefsConstants.CUSTOMLOG4J));
+        setUseCustomLevel(
+                RunProcessPlugin.getDefault().getPreferenceStore().getBoolean(RunProcessPrefsConstants.CUSTOMLOG4J));
 
         if (useCustomLevel) {
             IElementParameter log4jLevelParam = process.getElementParameter(EParameterName.LOG4J_RUN_LEVEL.getName());
@@ -1961,6 +1996,7 @@ public class RunProcessContext {
                 RunProcessPlugin.getDefault().getPreferenceStore().setValue(RunProcessPrefsConstants.LOG4JLEVEL, "");
             }
         }
-        setLog4jLevel(RunProcessPlugin.getDefault().getPreferenceStore().getString(RunProcessPrefsConstants.LOG4JLEVEL));
+        setLog4jLevel(
+                RunProcessPlugin.getDefault().getPreferenceStore().getString(RunProcessPrefsConstants.LOG4JLEVEL));
     }
 }
