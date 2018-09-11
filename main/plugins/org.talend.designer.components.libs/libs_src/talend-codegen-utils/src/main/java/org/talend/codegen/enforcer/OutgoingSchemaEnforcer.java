@@ -15,11 +15,10 @@ package org.talend.codegen.enforcer;
 import static org.talend.codegen.DiSchemaConstants.TALEND6_COLUMN_TALEND_TYPE;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.apache.avro.LogicalType;
 import org.apache.avro.LogicalTypes;
@@ -207,10 +206,10 @@ public class OutgoingSchemaEnforcer implements IndexedRecord {
         LogicalType logicalType = nonnull.getLogicalType();
         if (logicalType != null) {
             if (logicalType == LogicalTypes.date()) {
-                // (dchmyga): we need to set date as number of days at the end of the day in current timezone
-                LocalDate ld = LocalDate.ofEpochDay(((Integer) value).longValue());
-                ZonedDateTime zonedDate = ld.atStartOfDay(ZoneId.systemDefault());
-                return Date.from(zonedDate.toInstant());
+                Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+                c.setTimeInMillis(0L);
+                c.add(Calendar.DATE, (Integer) value);
+                return c.getTime();
             } else if (logicalType == LogicalTypes.timeMillis()) {
                 return value;
             } else if (logicalType == LogicalTypes.timestampMillis()) {

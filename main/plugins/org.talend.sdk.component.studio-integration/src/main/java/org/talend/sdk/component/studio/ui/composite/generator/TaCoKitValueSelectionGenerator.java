@@ -22,9 +22,7 @@ public class TaCoKitValueSelectionGenerator extends AbstractTaCoKitGenerator {
 
     @Override
     public AbstractElementPropertySectionController generate() {
-        TaCoKitValueSelectionController controller = new TaCoKitValueSelectionController(getDynamicProperty());
-        controller.setEditableText(true);
-        return controller;
+        return new TaCoKitValueSelectionController(getDynamicProperty());
     }
 
 }

@@ -17,8 +17,6 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
@@ -48,15 +46,11 @@ public class OutgoingDynamicSchemaEnforcerTest {
      */
     private static IndexedRecord record;
 
-    private static Date testDate;
-
     /**
      * Creates runtime schema and record, which are used in all tests
-     * 
-     * @throws ParseException
      */
     @BeforeClass
-    public static void setup() throws ParseException {
+    public static void setup() {
         runtimeSchema = SchemaBuilder.builder().record("Record").fields() //
                 .name("logicalTime").type(AvroUtils._logicalTime()).noDefault() //
                 .name("logicalDate").type(AvroUtils._logicalDate()).noDefault() //
@@ -84,8 +78,6 @@ public class OutgoingDynamicSchemaEnforcerTest {
         record.put(7, "Main Street");
         record.put(8, "This is a record with nine columns.");
         record.put(9, new Date(1467170137872L));
-
-        testDate = new SimpleDateFormat("yyyy-MM-dd").parse("2003-10-20");
     }
 
     /**
@@ -172,7 +164,7 @@ public class OutgoingDynamicSchemaEnforcerTest {
         Map<String, Object> dynamicValues = (Map<String, Object>) enforcer.get(0);
         assertThat(dynamicValues.size(), equalTo(7));
         assertThat(dynamicValues, hasEntry("logicalTime", (Object) 11111));
-        assertThat(dynamicValues, hasEntry("logicalDate", (Object) testDate)); // Mon Oct 20 03:00:00
+        assertThat(dynamicValues, hasEntry("logicalDate", (Object) new Date(1066608000000L))); // Mon Oct 20 03:00:00
         // EEST 2003 is
         // 1066608000000 ms
         assertThat(dynamicValues, hasEntry("logicalTimestamp", (Object) new Date(1489061653L)));
@@ -211,7 +203,7 @@ public class OutgoingDynamicSchemaEnforcerTest {
         Map<String, Object> dynamicValues = (Map<String, Object>) enforcer.get(2);
         assertThat(dynamicValues.size(), equalTo(7));
         assertThat(dynamicValues, hasEntry("logicalTime", (Object) 11111));
-        assertThat(dynamicValues, hasEntry("logicalDate", (Object) testDate));
+        assertThat(dynamicValues, hasEntry("logicalDate", (Object) new Date(1066608000000L)));
         assertThat(dynamicValues, hasEntry("logicalTimestamp", (Object) new Date(1489061653L)));
         assertThat(dynamicValues, hasEntry("age", (Object) 100));
         assertThat(dynamicValues, hasEntry("valid", (Object) true));
@@ -246,7 +238,7 @@ public class OutgoingDynamicSchemaEnforcerTest {
         Map<String, Object> dynamicValues = (Map<String, Object>) enforcer.get(3);
         assertThat(dynamicValues.size(), equalTo(7));
         assertThat(dynamicValues, hasEntry("logicalTime", (Object) 11111));
-        assertThat(dynamicValues, hasEntry("logicalDate", (Object) testDate));
+        assertThat(dynamicValues, hasEntry("logicalDate", (Object) new Date(1066608000000L)));
         assertThat(dynamicValues, hasEntry("logicalTimestamp", (Object) new Date(1489061653L)));
         assertThat(dynamicValues, hasEntry("valid", (Object) true));
         assertThat(dynamicValues, hasEntry("address", (Object) "Main Street"));
