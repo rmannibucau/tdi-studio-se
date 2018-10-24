@@ -319,20 +319,12 @@ if (sftp) { // *** sftp *** //
 				  		session_<%=cid%>.setProxy(proxy_<%=cid%>);
 				  	}
 				<%}%>
-				<%if(isLog4jEnabled){%>
-					log.info("<%=cid%> - Attempt to connect to '" + <%=host %> + "' with username: '" + <%=user%> + "'.");
-				<%}%>
-			    session_<%=cid%>.connect();
-			    com.jcraft.jsch. Channel channel_<%=cid%>=session_<%=cid%>.openChannel("sftp");
-			    channel_<%=cid%>.connect();
-				<%if(isLog4jEnabled){%>
-					log.info("<%=cid%> - Connect to '" + <%=host %> + "' has succeeded.");
-				<%}%>
-			    com.jcraft.jsch.ChannelSftp c_<%=cid%>=(com.jcraft.jsch.ChannelSftp)channel_<%=cid%>;
+				
+				<%@ include file="../tFTPConnection/sftp_connect.javajet"%>
 			    
-			    <%if(use_encoding) {%>
-			    	c_<%=cid%>.setFilenameEncoding(<%=encoding%>);
-			    <%}%>
+		    <%if(use_encoding) {%>
+		    	c_<%=cid%>.setFilenameEncoding(<%=encoding%>);
+		    <%}%>
   <%
 			}
   %>
