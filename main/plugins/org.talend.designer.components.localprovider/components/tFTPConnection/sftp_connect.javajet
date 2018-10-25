@@ -18,7 +18,7 @@ do {
       		log.info("<%=cid%> - Connect to '" + <%=host %> + "' has succeeded.");
       	<%}%>
   	} catch (com.jcraft.jsch.JSchException e_<%=cid%>) {
-  			if(getExceptionCauseMessage(e_<%=cid%>).contains("Signature length not correct")) {
+  			if(new TalendException(null, null, null).getExceptionCauseMessage(e_<%=cid%>).contains("Signature length not correct")) {
   					retry_<%=cid%> = true;
   					retry_count_<%=cid%>++;
   					<%if(isLog4jEnabled){%>
