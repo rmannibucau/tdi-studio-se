@@ -1,14 +1,51 @@
 <%@ jet
 %>
 
-<%if(isLog4jEnabled){%>
-	log.info("<%=cid%> - Attempt to connect to  '" + <%=host %> + "' with username '" + <%=user%> + "'.");
-<%}%>
-com.jcraft.jsch.Channel channel_<%=cid%> = null;
 boolean retry_<%=cid%> = false;
 int retry_count_<%=cid%> = 0;
 int retry_max_<%=cid%> = 10;
+
+com.jcraft.jsch.Channel channel_<%=cid%> = null;
+
 do {
+    com.jcraft.jsch.JSch jsch_<%=cid%> = new com.jcraft.jsch.JSch(); 
+    
+    <%if (("PUBLICKEY").equals(authMethod)){%>
+    	<%if(isLog4jEnabled){%>
+    		log.info("<%=cid%> - SFTP authentication using a public key.");
+    		log.debug("<%=cid%> - Private key: '" + <%=privateKey%> + "'.");
+    	<%}%>
+    	jsch_<%=cid%>.addIdentity(<%=privateKey %>, defaultUserInfo_<%=cid%>.getPassphrase());
+    <%}%>
+    
+    com.jcraft.jsch.Session session_<%=cid%> = jsch_<%=cid%>.getSession(<%=user%>, <%=host%>, <%=port%>);
+    session_<%=cid%>.setConfig("PreferredAuthentications", "publickey,password,keyboard-interactive,gssapi-with-mic");
+    
+    <%if (("PASSWORD").equals(authMethod)) {%> 
+    	<%if(isLog4jEnabled){%>
+    		log.info("<%=cid%> - SFTP authentication using a password.");
+    	<%}%>
+      		
+    	<%@ include file="@{org.talend.designer.components.localprovider}/components/templates/password.javajet"%>
+       	
+    	session_<%=cid%>.setPassword(decryptedPassword_<%=cid%>); 
+    <%}%>
+    
+    session_<%=cid%>.setUserInfo(defaultUserInfo_<%=cid%>); 
+    <%if (!useProxy) {%>
+    	if(("true").equals(System.getProperty("http.proxySet")) ){
+    		com.jcraft.jsch.ProxyHTTP proxy_<%=cid%> = new com.jcraft.jsch.ProxyHTTP(System.getProperty("http.proxyHost"),Integer.parseInt(System.getProperty("http.proxyPort")));
+    		if(!"".equals(System.getProperty("http.proxyUser"))){
+    			proxy_<%=cid%>.setUserPasswd(System.getProperty("http.proxyUser"),System.getProperty("http.proxyPassword"));
+    		}
+    		session_<%=cid%>.setProxy(proxy_<%=cid%>);
+    	}
+    <%}%>
+    	
+    <%if(isLog4jEnabled){%>
+    	log.info("<%=cid%> - Attempt to connect to  '" + <%=host %> + "' with username '" + <%=user%> + "'.");
+    <%}%>
+
 		retry_<%=cid%> = false;
   	try {
       	session_<%=cid%>.connect();
@@ -22,7 +59,7 @@ do {
   					retry_<%=cid%> = true;
   					retry_count_<%=cid%>++;
   					<%if(isLog4jEnabled){%>
-          		log.info("<%=cid%> - connect: java.security.SignatureException: Signature length not correct");
+          		log.info("<%=cid%> - connect: java.security.SignatureException: Signature length not correct, so retry, retry time : " + retry_count_<%=cid%>);
           	<%}%>
   			} else {
   					throw e_<%=cid%>;
