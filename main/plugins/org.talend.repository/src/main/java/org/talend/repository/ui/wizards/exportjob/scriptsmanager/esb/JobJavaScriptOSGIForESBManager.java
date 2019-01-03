@@ -64,6 +64,7 @@ import org.talend.core.runtime.process.ITalendProcessJavaProject;
 import org.talend.core.runtime.process.LastGenerationInfo;
 import org.talend.core.runtime.repository.build.BuildExportManager;
 import org.talend.core.ui.branding.IBrandingService;
+import org.talend.designer.core.ICamelDesignerCoreService;
 import org.talend.designer.core.IDesignerCoreService;
 import org.talend.designer.core.model.utils.emf.component.IMPORTType;
 import org.talend.designer.core.model.utils.emf.talendfile.ElementParameterType;
@@ -200,9 +201,40 @@ public class JobJavaScriptOSGIForESBManager extends JobJavaScriptsManager {
 
             ExportFileResource libResource = getCompiledLibExportFileResource(processes);
             list.add(libResource);
+            
+            
+            ExportFileResource libResourceSelected = new ExportFileResource(null, LIBRARY_FOLDER_NAME);
+            
+            if (GlobalServiceRegister.getDefault().isServiceRegistered(ICamelDesignerCoreService.class)) {
+                ICamelDesignerCoreService camelService = (ICamelDesignerCoreService) GlobalServiceRegister.getDefault().getService(
+                        ICamelDesignerCoreService.class);
+                
+                Collection<String> unselectList = camelService.getUnselectDependenciesBundle(processItem);
+                List<URL> unselectListURLs = new ArrayList<>();
+ 
+                for(Set<URL> set:libResource.getAllResources()) {
 
+                    for (URL url : set) {
+
+                        boolean exist = false;
+                        for(String name: unselectList) {
+                            if (name.equals(new File(url.toURI()).getName())) {
+                               exist = true;
+                            }
+                        }
+                        
+                        if (!exist) {
+                            unselectListURLs.add(url);
+                        }
+                        
+                    }
+                }
+                
+                libResourceSelected.addResources(unselectListURLs);
+            }
+            
             // generate the META-INFO folder
-            ExportFileResource metaInfoFolder = genMetaInfoFolder(libResource, processItem);
+            ExportFileResource metaInfoFolder = genMetaInfoFolder(libResourceSelected, processItem);
             list.add(0, metaInfoFolder);
 
             ExportFileResource providedLibResources = getProvidedLibExportFileResource(processes);
