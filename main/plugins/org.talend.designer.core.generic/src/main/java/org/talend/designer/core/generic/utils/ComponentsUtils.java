@@ -96,7 +96,7 @@ public class ComponentsUtils {
         if (compService != null) {
             return compService;
         }
-        BundleContext bundleContext = FrameworkUtil.getBundle(ComponentsUtils.class).getBundleContext();
+        BundleContext bundleContext = FrameworkUtil.getBundle(ComponentService.class).getBundleContext();
         ServiceReference<ComponentService> compServiceRef = bundleContext.getServiceReference(ComponentService.class);
         if (compServiceRef != null) {
             compService = bundleContext.getService(compServiceRef);

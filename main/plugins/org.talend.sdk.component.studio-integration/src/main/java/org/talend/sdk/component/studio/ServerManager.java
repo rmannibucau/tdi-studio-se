@@ -27,6 +27,7 @@ import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.tomcat.websocket.Constants;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.talend.commons.CommonsPlugin;
@@ -168,7 +169,7 @@ public class ServerManager extends AbstractUIPlugin {
     }
 
     private MavenResolver findMavenResolver() {
-        final BundleContext bundleContext = getBundle().getBundleContext();
+        final BundleContext bundleContext = FrameworkUtil.getBundle(MavenResolver.class).getBundleContext();
         final ServiceReference<MavenResolver> serviceReference = bundleContext.getServiceReference(MavenResolver.class);
         MavenResolver mavenResolver = null;
         if (serviceReference != null) {
