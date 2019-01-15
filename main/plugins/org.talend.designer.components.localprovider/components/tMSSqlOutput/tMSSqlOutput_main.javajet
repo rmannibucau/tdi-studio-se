@@ -479,20 +479,20 @@ if((cid.equals("talendLogs_DB") || cid.equals("talendStats_DB") || cid.equals("t
         <%
     }
 }
-    if(identityInsert ) {
-        if (useExistingConnection) {
+    if(identityInsert) {
+            if (useExistingConnection) {
         %>
 	        if ( !isShareIdentity_<%=cid%> ) {
 	            stmt_<%=cid %>.execute("SET IDENTITY_INSERT ["+ tableName_<%=cid%> +"] ON");
 	        }
         <%
-        } else {
+            } else {
      	%>
             stmt_<%=cid %>.execute("SET IDENTITY_INSERT ["+ tableName_<%=cid%> +"] ON");
      	<%
-        }
+            }
     }
-        %>
+%>
 		}
 	<%
 	} //end isDynamic
@@ -523,6 +523,13 @@ if((cid.equals("talendLogs_DB") || cid.equals("talendStats_DB") || cid.equals("t
 <%
 	}
 if(incomingConnName != null && columnList != null){
+    if(identityInsert&&useExistingConnection) {
+        %>
+	        if(isShareIdentity_<%=cid%>) {
+	            stmt_<%=cid %>.execute("SET IDENTITY_INSERT ["+ tableName_<%=cid%> +"] ON");
+	        }
+        <%
+    }
 %>
         whetherReject_<%=cid%> = false;
         <%
