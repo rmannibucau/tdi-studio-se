@@ -169,7 +169,7 @@ public class ServerManager extends AbstractUIPlugin {
     }
 
     private MavenResolver findMavenResolver() {
-        final BundleContext bundleContext = FrameworkUtil.getBundle(MavenResolver.class).getBundleContext();
+        final BundleContext bundleContext = getBundle().getBundleContext();
         final ServiceReference<MavenResolver> serviceReference = bundleContext.getServiceReference(MavenResolver.class);
         MavenResolver mavenResolver = null;
         if (serviceReference != null) {
