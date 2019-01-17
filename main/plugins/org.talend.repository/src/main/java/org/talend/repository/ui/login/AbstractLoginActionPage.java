@@ -52,6 +52,9 @@ public abstract class AbstractLoginActionPage extends AbstractActionPage {
 
     protected StackLayout stackLayout;
 
+    /**
+     * Background color for button
+     */
     protected Color backgroundColor;
 
     protected ErrorManager errorManager;
@@ -71,7 +74,7 @@ public abstract class AbstractLoginActionPage extends AbstractActionPage {
         stackLayout = (StackLayout) parent.getLayout();
         this.loginDialog = dialog;
         this.setFont(JFaceResources.getFont(LoginDialogV2.FONT_TALEND_FOR_LOGIN_UI));
-        this.backgroundColor = JFaceResources.getColorRegistry().get(LoginDialogV2.COLOR_LOGON_DIALOG_BACKGROUND);
+        // this.backgroundColor = JFaceResources.getColorRegistry().get(LoginDialogV2.COLOR_LOGON_DIALOG_BACKGROUND);
     }
 
     @Override
