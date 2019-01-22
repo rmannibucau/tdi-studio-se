@@ -416,6 +416,29 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
         return new ArrayList<>(modulesNeeded);
     }
 
+//    @Override TODO uncomment
+    public List<ModuleNeeded> getClasspath(INode node) {
+        final Set<ModuleNeeded> classpath = new LinkedHashSet<>(20);
+        final ComponentService.Dependencies dependencies = getDependencies();
+        classpath.addAll(dependencies
+                .getCommon()
+                .stream()
+                .map(s -> new ModuleNeeded(getName(), "", true, s))
+                .collect(toList()));
+        classpath.add(new ModuleNeeded(getName(), "", true, "mvn:org.talend.sdk.component/component-runtime-di/" + GAV.INSTANCE.getComponentRuntimeVersion()));
+        classpath.add(new ModuleNeeded(getName(), "", true, "mvn:org.talend.sdk.component/component-runtime-design-extension/" + GAV.INSTANCE.getComponentRuntimeVersion()));
+        classpath.add(new ModuleNeeded(getName(), "", true, "mvn:org.slf4j/slf4j-api/" + GAV.INSTANCE.getSlf4jVersion()));
+
+        if (!hasTcomp0Component(node)) {
+            if (!PluginChecker.isTIS()) {
+                classpath.add(new ModuleNeeded(getName(), "", true, "mvn:" + GAV.INSTANCE.getGroupId() + "/slf4j-standard/" + GAV.INSTANCE.getComponentRuntimeVersion()));
+            } else {
+                classpath.add(new ModuleNeeded(getName(), "", true, "mvn:org.slf4j/slf4j-log4j12/" + GAV.INSTANCE.getSlf4jVersion()));
+            }
+        }
+        return new ArrayList<>(classpath);
+    }
+
     protected boolean hasTcomp0Component(final INode iNode) {
         if (iNode == null) {
             return false;
