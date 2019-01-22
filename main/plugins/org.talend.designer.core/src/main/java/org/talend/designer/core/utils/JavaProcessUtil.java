@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +30,7 @@ import org.eclipse.core.runtime.Path;
 import org.talend.core.CorePlugin;
 import org.talend.core.hadoop.IHadoopClusterService;
 import org.talend.core.hadoop.repository.HadoopRepositoryUtil;
+import org.talend.core.model.components.IComponent;
 import org.talend.core.model.general.ModuleNeeded;
 import org.talend.core.model.process.EParameterFieldType;
 import org.talend.core.model.process.IContext;
@@ -56,6 +58,34 @@ import org.talend.librariesmanager.model.ModulesNeededProvider;
  * DOC xye class global comment. Detailled comment
  */
 public class JavaProcessUtil {
+
+    /**
+     * Gets classpath needed for process
+     *
+     * @param process
+     * @return
+     */
+    public static Set<ModuleNeeded> getClasspath(final IProcess process) {
+        final Set<ModuleNeeded> classpath = new LinkedHashSet<ModuleNeeded>();
+
+        // adds common dependencies for every process (like logger)
+        if (process instanceof IProcess2) {
+            final Item item = ((IProcess2) process).getProperty().getItem();
+            if (item instanceof ProcessItem) {
+                classpath.addAll(ModulesNeededProvider.getModulesNeededForProcess((ProcessItem) item, process));
+            }
+        }
+
+        for (final INode node : process.getGeneratingNodes()) {
+            if (process instanceof IProcess2) {
+                ((IProcess2) node.getProcess()).setNeedLoadmodules(((IProcess2) process).isNeedLoadmodules());
+            }
+            final IComponent component = node.getComponent();
+            classpath.addAll(component.getClasspath(node));
+        }
+
+        return classpath;
+    }
 
     public static Set<ModuleNeeded> getNeededModules(final IProcess process, int options) {
         List<ModuleNeeded> modulesNeeded = new ArrayList<ModuleNeeded>();
