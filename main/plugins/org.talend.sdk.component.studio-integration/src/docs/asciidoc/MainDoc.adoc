@@ -1,0 +1,34 @@
+= Tacokit Framework integration into Studio
+Doc Writer <igonchar@talend.com>
+2019-01-24
+:revnumber: {project-version}
+:example-caption!:
+ifndef::imagesdir[:imagesdir: images]
+ifndef::sourcedir[:sourcedir: ../../main/java]
+
+This documentation describes Tacokit integration into Studio
+
+== Introduction
+
+This doc contains following sections:
+
+* Overall architecture
+* Tacokit Model integration
+* Tacokit Metadata (Repository)
+* Tacokit Runtime
+* Tacokit Schema
+* Tacokit Help
+
+include::Overall.adoc[]
+
+include::Model.adoc[]
+
+include::Metadata.adoc[]
+
+include::Runtime.adoc[]
+
+include::Schema.adoc[]
+
+include::Help.adoc[]
+
+
