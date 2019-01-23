@@ -409,24 +409,7 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
             synchronized (this) {
                 if (runtimeArtifacts == null) {
                     final ComponentService.Dependencies dependencies = getDependencies();
-                    runtimeArtifacts = new LinkedHashSet<>(20);
-                    runtimeArtifacts.addAll(dependencies
-                            .getCommon()
-                            .stream()
-                            .map(s -> new ModuleNeeded(getName(), "", true, s))
-                            .collect(toList()));
-                    runtimeArtifacts.add(new ModuleNeeded(getName(), "", true, "mvn:org.talend.sdk.component/component-runtime-di/" + GAV.INSTANCE.getComponentRuntimeVersion()));
-                    runtimeArtifacts.add(new ModuleNeeded(getName(), "", true, "mvn:org.talend.sdk.component/component-runtime-design-extension/" + GAV.INSTANCE.getComponentRuntimeVersion()));
-                    runtimeArtifacts.add(new ModuleNeeded(getName(), "", true, "mvn:org.slf4j/slf4j-api/" + GAV.INSTANCE.getSlf4jVersion()));
-
-                    if (!hasTcomp0Component(iNode)) {
-                        if (!PluginChecker.isTIS()) {
-                            runtimeArtifacts.add(new ModuleNeeded(getName(), "", true, "mvn:" + GAV.INSTANCE.getGroupId() + "/slf4j-standard/" + GAV.INSTANCE.getComponentRuntimeVersion()));
-                        } else {
-                            runtimeArtifacts.add(new ModuleNeeded(getName(), "", true, "mvn:org.slf4j/slf4j-log4j12/" + GAV.INSTANCE.getSlf4jVersion()));
-                        }
-                    }
-
+                    runtimeArtifacts = new LinkedHashSet<>();
                     final Map<String, ?> componentDependencies = !Lookups.configuration().isActive() ? null : Lookups.client().v1().component().dependencies(detail.getId().getId());
                     if (componentDependencies != null && componentDependencies.containsKey("dependencies")) {
                         final Collection<String> coordinates = Collection.class.cast(Map.class
