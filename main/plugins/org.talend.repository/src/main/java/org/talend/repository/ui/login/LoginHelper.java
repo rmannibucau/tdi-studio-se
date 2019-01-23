@@ -474,6 +474,10 @@ public class LoginHelper {
         if (connBean == null || project == null || project.getLabel() == null) {
             return false;
         }
+        LoginFetchLicenseHelper loginFetchLicenseHelper = LoginFetchLicenseHelper.getInstance();
+        if (!loginFetchLicenseHelper.refreshLicenseIfNeeded(project)) {
+            return false;
+        }
         setCurrentSelectedConnBean(connBean);
         try {
             if (!project.getEmfProject().isLocal() && factory.isLocalConnectionProvider()) {
@@ -524,7 +528,6 @@ public class LoginHelper {
             public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
                 // monitorWrap = new EventLoopProgressMonitor(monitor);
                 try {
-
                     factory.logOnProject(project, monitor);
                 } catch (LoginException e) {
                     throw new InvocationTargetException(e);
@@ -539,9 +542,9 @@ public class LoginHelper {
         };
 
         try {
-
             dialog.run(true, true, runnable);
-
+            clearLicenseMap();
+            loginFetchLicenseHelper.cancelAndClearFetchJobs();
         } catch (final InvocationTargetException e) {
             // if (PluginChecker.isSVNProviderPluginLoaded()) {
             if (e.getTargetException() instanceof OperationCancelException) {
