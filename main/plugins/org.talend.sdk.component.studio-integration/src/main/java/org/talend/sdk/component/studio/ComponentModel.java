@@ -99,6 +99,8 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
 
     private volatile Set<ModuleNeeded> modulesNeeded;
 
+    private volatile Set<ModuleNeeded> runtimeArtifacts;
+
     private Map<String, Object> additionalInfoMap = new HashMap<>();
 
     private Boolean useLookup = null;
@@ -359,7 +361,7 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
     }
 
     /**
-     * get component required dependencies
+     * Return dependency libraries required in classpath
      *
      * @param iNode
      * @return
@@ -369,8 +371,8 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
         if (modulesNeeded == null) {
             synchronized (this) {
                 if (modulesNeeded == null) {
-                    final ComponentService.Dependencies dependencies = getDependencies();
                     modulesNeeded = new LinkedHashSet<>(20);
+                    final ComponentService.Dependencies dependencies = getDependencies();
                     modulesNeeded.addAll(dependencies
                             .getCommon()
                             .stream()
@@ -387,6 +389,43 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
                             modulesNeeded.add(new ModuleNeeded(getName(), "", true, "mvn:org.slf4j/slf4j-log4j12/" + GAV.INSTANCE.getSlf4jVersion()));
                         }
                     }
+                }
+            }
+        }
+        return new ArrayList<>(modulesNeeded);
+    }
+
+
+
+    /**
+     * Return additional dependency libraries required in runime
+     *
+     * @param iNode component node
+     * @return a list of additional libraries
+     */
+    //    @Override TODO uncomment
+    public List<ModuleNeeded> getRuntimeArtifacts(final INode iNode) {
+        if (runtimeArtifacts == null) {
+            synchronized (this) {
+                if (runtimeArtifacts == null) {
+                    final ComponentService.Dependencies dependencies = getDependencies();
+                    runtimeArtifacts = new LinkedHashSet<>(20);
+                    runtimeArtifacts.addAll(dependencies
+                            .getCommon()
+                            .stream()
+                            .map(s -> new ModuleNeeded(getName(), "", true, s))
+                            .collect(toList()));
+                    runtimeArtifacts.add(new ModuleNeeded(getName(), "", true, "mvn:org.talend.sdk.component/component-runtime-di/" + GAV.INSTANCE.getComponentRuntimeVersion()));
+                    runtimeArtifacts.add(new ModuleNeeded(getName(), "", true, "mvn:org.talend.sdk.component/component-runtime-design-extension/" + GAV.INSTANCE.getComponentRuntimeVersion()));
+                    runtimeArtifacts.add(new ModuleNeeded(getName(), "", true, "mvn:org.slf4j/slf4j-api/" + GAV.INSTANCE.getSlf4jVersion()));
+
+                    if (!hasTcomp0Component(iNode)) {
+                        if (!PluginChecker.isTIS()) {
+                            runtimeArtifacts.add(new ModuleNeeded(getName(), "", true, "mvn:" + GAV.INSTANCE.getGroupId() + "/slf4j-standard/" + GAV.INSTANCE.getComponentRuntimeVersion()));
+                        } else {
+                            runtimeArtifacts.add(new ModuleNeeded(getName(), "", true, "mvn:org.slf4j/slf4j-log4j12/" + GAV.INSTANCE.getSlf4jVersion()));
+                        }
+                    }
 
                     final Map<String, ?> componentDependencies = !Lookups.configuration().isActive() ? null : Lookups.client().v1().component().dependencies(detail.getId().getId());
                     if (componentDependencies != null && componentDependencies.containsKey("dependencies")) {
@@ -394,11 +433,11 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
                                 .cast(Map.class.cast(componentDependencies.get("dependencies")).values().iterator().next())
                                 .get("dependencies"));
                         if (coordinates != null) {
-                            modulesNeeded.addAll(coordinates.stream()
+                            runtimeArtifacts.addAll(coordinates.stream()
                                     .map(coordinate -> new ModuleNeeded(getName(), "", true, Mvn.locationToMvn(coordinate).replace(MavenConstants.LOCAL_RESOLUTION_URL + '!', "")))
                                     .collect(Collectors.toList()));
                             if (coordinates.contains("org.apache.beam") || coordinates.contains(":beam-sdks-java-io")) {
-                                modulesNeeded.addAll(dependencies
+                                runtimeArtifacts.addAll(dependencies
                                         .getBeam()
                                         .stream()
                                         .map(s -> new ModuleNeeded(getName(), "", true, s))
@@ -409,34 +448,11 @@ public class ComponentModel extends AbstractBasicComponent implements IAdditiona
 
                     // We're assuming that pluginLocation has format of groupId:artifactId:version
                     final String location = index.getId().getPluginLocation().trim();
-                    modulesNeeded.add(new ModuleNeeded(getName(), "", true, Mvn.locationToMvn(location).replace(MavenConstants.LOCAL_RESOLUTION_URL + '!', "")));
+                    runtimeArtifacts.add(new ModuleNeeded(getName(), "", true, Mvn.locationToMvn(location).replace(MavenConstants.LOCAL_RESOLUTION_URL + '!', "")));
                 }
             }
         }
-        return new ArrayList<>(modulesNeeded);
-    }
-
-//    @Override TODO uncomment
-    public List<ModuleNeeded> getClasspath(INode node) {
-        final Set<ModuleNeeded> classpath = new LinkedHashSet<>(20);
-        final ComponentService.Dependencies dependencies = getDependencies();
-        classpath.addAll(dependencies
-                .getCommon()
-                .stream()
-                .map(s -> new ModuleNeeded(getName(), "", true, s))
-                .collect(toList()));
-        classpath.add(new ModuleNeeded(getName(), "", true, "mvn:org.talend.sdk.component/component-runtime-di/" + GAV.INSTANCE.getComponentRuntimeVersion()));
-        classpath.add(new ModuleNeeded(getName(), "", true, "mvn:org.talend.sdk.component/component-runtime-design-extension/" + GAV.INSTANCE.getComponentRuntimeVersion()));
-        classpath.add(new ModuleNeeded(getName(), "", true, "mvn:org.slf4j/slf4j-api/" + GAV.INSTANCE.getSlf4jVersion()));
-
-        if (!hasTcomp0Component(node)) {
-            if (!PluginChecker.isTIS()) {
-                classpath.add(new ModuleNeeded(getName(), "", true, "mvn:" + GAV.INSTANCE.getGroupId() + "/slf4j-standard/" + GAV.INSTANCE.getComponentRuntimeVersion()));
-            } else {
-                classpath.add(new ModuleNeeded(getName(), "", true, "mvn:org.slf4j/slf4j-log4j12/" + GAV.INSTANCE.getSlf4jVersion()));
-            }
-        }
-        return new ArrayList<>(classpath);
+        return new ArrayList<>(runtimeArtifacts);
     }
 
     protected boolean hasTcomp0Component(final INode iNode) {
