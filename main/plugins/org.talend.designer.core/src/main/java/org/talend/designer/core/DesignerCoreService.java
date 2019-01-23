@@ -764,9 +764,8 @@ public class DesignerCoreService implements IDesignerCoreService {
         return JavaProcessUtil.getNeededModules(process, options);
     }
 
-    @Override
-    public Set<ModuleNeeded> getClasspath(final IProcess process) {
-        return JavaProcessUtil.getClasspath(process);
+    public Set<ModuleNeeded> getAdditionalLibrariesForProcess(final IProcess process) {
+        return JavaProcessUtil.getRuntimeArtifacts(process);
     }
 
     @Override

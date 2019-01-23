@@ -60,31 +60,18 @@ import org.talend.librariesmanager.model.ModulesNeededProvider;
 public class JavaProcessUtil {
 
     /**
-     * Gets classpath needed for process
+     * Gets additional artifacts needed for process in runtime
      *
      * @param process
      * @return
      */
-    public static Set<ModuleNeeded> getClasspath(final IProcess process) {
-        final Set<ModuleNeeded> classpath = new LinkedHashSet<ModuleNeeded>();
-
-        // adds common dependencies for every process (like logger)
-        if (process instanceof IProcess2) {
-            final Item item = ((IProcess2) process).getProperty().getItem();
-            if (item instanceof ProcessItem) {
-                classpath.addAll(ModulesNeededProvider.getModulesNeededForProcess((ProcessItem) item, process));
-            }
-        }
-
+    public static Set<ModuleNeeded> getRuntimeArtifacts(final IProcess process) {
+        final Set<ModuleNeeded> artifacts = new LinkedHashSet<ModuleNeeded>();
         for (final INode node : process.getGeneratingNodes()) {
-            if (process instanceof IProcess2) {
-                ((IProcess2) node.getProcess()).setNeedLoadmodules(((IProcess2) process).isNeedLoadmodules());
-            }
             final IComponent component = node.getComponent();
-            classpath.addAll(component.getClasspath(node));
+            artifacts.addAll(component.getRuntimeArtifacts(node));
         }
-
-        return classpath;
+        return artifacts;
     }
 
     public static Set<ModuleNeeded> getNeededModules(final IProcess process, int options) {
