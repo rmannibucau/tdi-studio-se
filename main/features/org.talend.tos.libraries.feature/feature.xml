@@ -5,12 +5,12 @@
   <copyright url="http://www.example.com/copyright">[Enter Copyright Description here.]</copyright>  
   <license url="http://www.example.com/license">[Enter License Description here.]</license>  
   <requires>
+    <import feature="org.eclipse.nebula.widgets.nattable.extension.glazedlists.feature" version="0.0.0" match="greaterOrEqual"/>
     <import feature="org.talend.libraries.jdbc.feature" version="0.0.0" match="greaterOrEqual"/>
     <import plugin="org.apache.commons.beanutils" version="0.0.0" match="greaterOrEqual"/>
     <import plugin="org.apache.commons.httpclient" version="0.0.0" match="greaterOrEqual"/>
     <import plugin="org.apache.commons.logging" version="1.2.0" match="greaterOrEqual"/>
     <import plugin="org.eclipse.nebula.widgets.nattable.core" version="0.0.0" match="greaterOrEqual"/>
-    <import plugin="org.eclipse.nebula.widgets.nattable.extension.glazedlists" version="0.0.0" match="greaterOrEqual"/>
     <import plugin="org.eclipse.nebula.widgets.tablecombo" version="0.0.0" match="greaterOrEqual"/>
     <import plugin="org.w3c.css.sac" version="0.0.0" match="greaterOrEqual"/>
   </requires>  
