@@ -1,2 +1,30 @@
-== Overall architecture
+== Overall architecture and common questions
 
+The idea of Tacokit integration is to put all code responsible for integration into single plugin.
+This plugin is *org.talend.sdk.component.studio-integration*.
+ServerManager class is a Plugin class or BundleActivator. BundleActivator is defined in MANIFEST.MF file.
+It is responsible for starting and stopping Tacokit Component service.
+
+=== What ComponentServer does in start and stop methods?
+
+In start() method ComponentServer register some classes as OSGi services (why?)
+It initializes ProcessManager, which is responsible for starting Component service.
+It creates WebSocketClient, which is used for calls to Component service
+
+In stop() it unregisters services
+stops services if required
+launches reset Runnable
+
+=== Services and Lookup
+
+Registering services allows to implement singleton concept (there is only one service instance)
+and get service instance from any place within the integration plugin.
+
+=== What is Tacokit Component service?
+
+Describe here what is Tacokit service.
+
+=== GlobalServiceRegister substitution hack
+
+GlobalServiceRegister is a singleton service. Thus, it means it is not possible to  substitute it, wherever it used.
+Lookups.init() method implements a hack, which substitutes GlobalServiceRegister static instance field with its extension (EnrichedGlobalServiceRegister class)
