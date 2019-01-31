@@ -157,6 +157,7 @@ if ((metadatas!=null)&&(metadatas.size()>0)) {
 					<%} else {%>
 						ThreadXMLField_<%=cid%> txf_<%=cid%> = new ThreadXMLField_<%=cid%>(listGroupby_<%=cid%>, flows_<%=cid%>);
 					<%}%>
+					globalMap.put("wrtXMLFieldIn_<%=cid%>", txf_<%=cid%>);
 					txf_<%=cid%>.start();
 				<%
 				}else{
