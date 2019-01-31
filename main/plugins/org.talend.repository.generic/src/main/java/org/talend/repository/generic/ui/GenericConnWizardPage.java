@@ -29,9 +29,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.talend.commons.exception.PersistenceException;
-import org.talend.commons.ui.gmf.util.DisplayUtils;
 import org.talend.commons.ui.runtime.exception.ExceptionHandler;
 import org.talend.components.api.service.ComponentService;
 import org.talend.core.GlobalServiceRegister;
@@ -149,17 +147,17 @@ public class GenericConnWizardPage extends GenericWizardPage implements Property
                         }
                         retrieveNameFinished = true;
                         // force the refresh of the text field, no matter successfull retrieve of not.
-                        Display d = DisplayUtils.getDisplay();
-                        if (d != null) {
-                            d.syncExec(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    evaluateTextField();
-                                }
-
-                            });
-                        }
+                        // Display d = DisplayUtils.getDisplay();
+                        // if (d != null) {
+                        // d.syncExec(new Runnable() {
+                        //
+                        // @Override
+                        // public void run() {
+                        // evaluateTextField();
+                        // }
+                        //
+                        // });
+                        // }
                         return Status.OK_STATUS;
                     }
                 };
