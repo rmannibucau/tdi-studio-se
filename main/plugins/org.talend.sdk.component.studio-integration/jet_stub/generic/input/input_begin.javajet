@@ -101,9 +101,9 @@ while ((data_<%=cid%> = input_<%=cid%>.next()) != null) {
         jsonValueMapper_<%=cid%> = javax.json.JsonValue.class.cast(data_<%=cid%>).toString();
     } else if (org.talend.sdk.component.api.record.Record.class.isInstance(data_<%=cid%>)) {
         jsonValueMapper_<%=cid%> = converters_<%=cid%>.toType(
-                new org.talend.sdk.component.runtime.record.RecordConverters().MappingMetaRegistry(),
+                new org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegistry(),
                 converters_<%=cid%>.toRecord(
-                        new org.talend.sdk.component.runtime.record.RecordConverters().MappingMetaRegistry(),
+                        new org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegistry(),
                         data_<%=cid%>,
                         () -> jsonb_<%=cid%>,
                         () -> recordBuilderMapper_<%=cid%>),
