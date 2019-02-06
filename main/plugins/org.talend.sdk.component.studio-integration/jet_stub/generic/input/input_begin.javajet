@@ -78,6 +78,9 @@ if (connections.isEmpty()) {
     throw new RuntimeException("Missing output connection for component " + family + "#" + originalName);
 }
 final String output = connections.iterator().next().getName();
+// templateOrigin is ommited as there are no virtual tacokit components for the moment
+// see subprocess_header.javajet
+final String rowClassName = output + "Struct";
 %>
 
 final javax.json.bind.Jsonb jsonb_<%=cid%> = (javax.json.bind.Jsonb)mgr_<%=cid%>.findPlugin(mapper_<%=cid%>.plugin()).get()
@@ -102,10 +105,10 @@ while ((data_<%=cid%> = input_<%=cid%>.next()) != null) {
         () -> jsonb_<%=cid%>,
         () -> recordBuilderMapper_<%=cid%>);
 
-    <%=output%> = converters_<%=cid%>.toType(
+    <%=output%> = (<%=rowClassName%>)converters_<%=cid%>.toType(
         new org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegistry(),
         record_<%=cid%>,
-        <%=output%>.getClass(),
+        <%=rowClassName%>.class,
         () -> jsonBuilderFactory_<%=cid%>,
         () -> jsonProvider_<%=cid%>,
         () -> jsonb_<%=cid%>,
