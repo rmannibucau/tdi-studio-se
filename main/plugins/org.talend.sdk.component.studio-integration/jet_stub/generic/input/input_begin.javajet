@@ -96,24 +96,17 @@ Object data_<%=cid%>;
 while ((data_<%=cid%> = input_<%=cid%>.next()) != null) {
     nbLineInput_<%=cid%>++;
     globalMap.put("<%=cid %>_NB_LINE", nbLineInput_<%=cid%>);
-    final String jsonValueMapper_<%=cid%>;
-    if (javax.json.JsonValue.class.isInstance(data_<%=cid%>)) {
-        jsonValueMapper_<%=cid%> = javax.json.JsonValue.class.cast(data_<%=cid%>).toString();
-    } else if (org.talend.sdk.component.api.record.Record.class.isInstance(data_<%=cid%>)) {
-        jsonValueMapper_<%=cid%> = converters_<%=cid%>.toType(
-                new org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegistry(),
-                converters_<%=cid%>.toRecord(
-                        new org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegistry(),
-                        data_<%=cid%>,
-                        () -> jsonb_<%=cid%>,
-                        () -> recordBuilderMapper_<%=cid%>),
-                javax.json.JsonObject.class,
-                () -> jsonBuilderFactory_<%=cid%>,
-                () -> jsonProvider_<%=cid%>,
-                () -> jsonb_<%=cid%>,
-                () -> recordBuilderMapper_<%=cid%>)
-        .toString();
-    } else {
-        jsonValueMapper_<%=cid%> = jsonb_<%=cid%>.toJson(data_<%=cid%>);
-    }
-    <%=output%> = jsonb_<%=cid%>.fromJson(jsonValueMapper_<%=cid%>, <%=output%>.getClass());
+    final org.talend.sdk.component.api.record.Record record_<%=cid%> = converters_<%=cid%>.toRecord(
+        new org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegistry(),
+        data_<%=cid%>,
+        () -> jsonb_<%=cid%>,
+        () -> recordBuilderMapper_<%=cid%>);
+
+    <%=output%> = converters_<%=cid%>.toType(
+        new org.talend.sdk.component.runtime.record.RecordConverters.MappingMetaRegistry(),
+        record_<%=cid%>,
+        <%=output%>.getClass(),
+        () -> jsonBuilderFactory_<%=cid%>,
+        () -> jsonProvider_<%=cid%>,
+        () -> jsonb_<%=cid%>,
+        () -> recordBuilderMapper_<%=cid%>);
