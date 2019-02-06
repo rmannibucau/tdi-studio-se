@@ -97,18 +97,18 @@ public abstract class SchemaElementParameter extends TaCoKitElementParameter {
     @Override
     public void setValue(final Object newValue) {
         if (newValue != null && newValue instanceof List) {
-            final List<String> schema = (List<String>) newValue;
-
-            final List<IMetadataColumn> columns = new ArrayList<>();
-            for (final String columnName : schema) {
-                final MetadataColumn column = new MetadataColumn();
-                column.setLabel(columnName);
-                column.setOriginalDbColumnName(columnName);
-                column.setTalendType(STRING);
-                columns.add(column);
-            }
-            final Optional<IMetadataTable> metadata = getMetadata();
-            metadata.ifPresent(m -> m.setListColumns(columns));
+//            final List<String> schema = (List<String>) newValue;
+//
+//            final List<IMetadataColumn> columns = new ArrayList<>();
+//            for (final String columnName : schema) {
+//                final MetadataColumn column = new MetadataColumn();
+//                column.setLabel(columnName);
+//                column.setOriginalDbColumnName(columnName);
+//                column.setTalendType(STRING);
+//                columns.add(column);
+//            }
+//            final Optional<IMetadataTable> metadata = getMetadata();
+//            metadata.ifPresent(m -> m.setListColumns(columns));
         }
     }
 
