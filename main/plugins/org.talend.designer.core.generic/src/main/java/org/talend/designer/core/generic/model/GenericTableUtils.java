@@ -61,6 +61,9 @@ public class GenericTableUtils {
                 List<String> valueList = new ArrayList<>();
                 if(dbService != null){
                     for(String v:values){
+                    	if(v == null || v.length() <= 0){
+                    		continue;
+                    	}
                         if(param.getName().equals(EConnectionParameterName.GENERIC_DRIVER_JAR.getDisplayName())){
                             v = dbService.getMVNPath(v);
                         }
@@ -156,7 +159,7 @@ public class GenericTableUtils {
         }
         return jars.toString();
     }
-    
+
     public static String getDriverJarPath(String mvnPath){
         String mvnUrl = TalendQuoteUtils.removeQuotesIfExist(mvnPath);
         if (MavenUrlHelper.isMvnUrl(mvnUrl)) {

@@ -283,20 +283,31 @@
 						typeToGenerate = "float";
 					} else if("id_Integer".equals(column.getTalendType())) {
 						typeToGenerate = "integer";
+					} else if("id_BigDecimal".equals(column.getTalendType())) {
+						typeToGenerate = "numeric";					
 					} else if("id_Boolean".equals(column.getTalendType())) {
 						typeToGenerate = "boolean";
 					} else if("id_Date".equals(column.getTalendType())) {
 						typeToGenerate = "timestamp";
 					}
 					%>
+					<%
+						String modeType = null;
+						if (!column.isNullable()) { 
+							modeType = "REQUIRED";
+						} else {
+							modeType = "NULLABLE";
+						}
+					%>
 					com.google.api.services.bigquery.model.TableFieldSchema <%=columnName%>_<%=cid%> = new com.google.api.services.bigquery.model.TableFieldSchema();
 					<%=columnName%>_<%=cid%>.setName("<%=columnName%>");
 					<%=columnName%>_<%=cid%>.setType("<%=typeToGenerate%>");
+					<%=columnName%>_<%=cid%>.setMode("<%=modeType%>");
 					fields_<%=cid%>.add(<%=columnName%>_<%=cid%>);		
 					<%
 					if(isLog4jEnabled){
 					%>
-						log.debug("<%=cid%> - Field index[<%=i%>] {\"name\":\"<%=columnName%>\",\"type\":\"<%=typeToGenerate%>\"}");
+						log.debug("<%=cid%> - Field index[<%=i%>] {\"name\":\"<%=columnName%>\",\"type\":\"<%=typeToGenerate%>\",\"mode\":\"<%=modeType%>\"}");
 					<%
 					}
 				}
@@ -375,10 +386,10 @@
 		}
 		if (jobExec_<%=cid%>.getStatus().getState().equals("RUNNING")
 				|| jobExec_<%=cid%>.getStatus().getState().equals("PENDING")) {
-			com.google.api.services.bigquery.model.Job pollJob_<%=cid%> = bigqueryclient_<%=cid%>.jobs().get(PROJECT_ID_<%=cid%>,jobExec_<%=cid%>.getJobReference().getJobId()).execute();
+            		com.google.api.services.bigquery.model.Job pollJob_<%=cid%> = bigqueryclient_<%=cid%>.jobs().get(PROJECT_ID_<%=cid%>,jobExec_<%=cid%>.getJobReference().getJobId()).setLocation(jobExec_<%=cid%>.getJobReference().getLocation()).execute();
 			while (pollJob_<%=cid%>.getStatus().getState().equals("RUNNING") || pollJob_<%=cid%>.getStatus().getState().equals("PENDING")) {
 				Thread.sleep(1000);
-				pollJob_<%=cid%> = bigqueryclient_<%=cid%>.jobs().get(PROJECT_ID_<%=cid%>,jobExec_<%=cid%>.getJobReference().getJobId()).execute();
+				pollJob_<%=cid%> = bigqueryclient_<%=cid%>.jobs().get(PROJECT_ID_<%=cid%>,jobExec_<%=cid%>.getJobReference().getJobId()).setLocation(jobExec_<%=cid%>.getJobReference().getLocation()).execute();
 				System.out.println(String.format(
 						"Waiting on job %s ... Current status: %s", jobExec_<%=cid%>
 								.getJobReference().getJobId(), pollJob_<%=cid%>
@@ -454,8 +465,8 @@
 				throw new RuntimeException("Unable to delete table " + tableId_<%=cid%>);
 			}
 		}
-		boolean tableNotExist = table_<%=cid%> == null;
-		if (<%=ElementParameterParser.getBooleanValue(node, "__DROP__")%> || tableNotExist) {
+		boolean tableNotExist_<%=cid%> = table_<%=cid%> == null;
+		if (<%=ElementParameterParser.getBooleanValue(node, "__DROP__")%> || tableNotExist_<%=cid%>) {
 			boolean typeSupported = true;
 			java.util.List<com.google.cloud.bigquery.Field> fields_<%=cid%> = new java.util.ArrayList<>();
 			<%
@@ -475,6 +486,8 @@
 							typeToGenerate = "com.google.cloud.bigquery.LegacySQLTypeName.FLOAT";
 						} else if ("id_Short".equals(column.getTalendType()) || "id_Integer".equals(column.getTalendType()) || "id_Long".equals(column.getTalendType())) {
 							typeToGenerate = "com.google.cloud.bigquery.LegacySQLTypeName.INTEGER";
+						} else if ("id_BigDecimal".equals(column.getTalendType())) {
+							typeToGenerate = "com.google.cloud.bigquery.LegacySQLTypeName.NUMERIC";						
 						} else if ("id_Boolean".equals(column.getTalendType())) {
 							typeToGenerate = "com.google.cloud.bigquery.LegacySQLTypeName.BOOLEAN";
 						} else if ("id_Date".equals(column.getTalendType())) {
