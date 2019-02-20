@@ -22,6 +22,8 @@ import net.sf.json.JSONException;
 import net.sf.json.JSONFunction;
 import net.sf.json.JSONNull;
 import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
+import net.sf.json.JsonStandard;
 import net.sf.json.util.JSONUtils;
 import nu.xom.Attribute;
 import nu.xom.Builder;
@@ -29,7 +31,6 @@ import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
 import nu.xom.Node;
-import nu.xom.ProcessingInstruction;
 import nu.xom.Serializer;
 import nu.xom.Text;
 import org.apache.commons.lang.ArrayUtils;
@@ -162,6 +163,11 @@ public class XMLSerializer {
     * flag for if try to convert integer numbers as long
     */
    private boolean useLongDecimals;
+
+   /**
+    * The config parameter to wrap "null" strings as strings instead of JsonNull.
+    */
+   private JsonStandard jsonStandard;
 
    /**
     * Creates a new XMLSerializer with default options.<br>
@@ -653,6 +659,10 @@ public class XMLSerializer {
     */
    public void setUseLongDecimals(boolean useLongDecimals) {
       this.useLongDecimals = useLongDecimals;
+   }
+
+   public void setJsonStandard(JsonStandard jsonStandard) {
+      this.jsonStandard = jsonStandard;
    }
 
    /**
@@ -1264,7 +1274,9 @@ public class XMLSerializer {
             ((JSONArray) val).setExpandElements( true );
          }
       }else{
-         jsonObject.element( key, value );
+         JsonConfig config = new JsonConfig();
+         config.setJsonStandard(jsonStandard);
+         jsonObject.element( key, value, config);
       }
    }
 

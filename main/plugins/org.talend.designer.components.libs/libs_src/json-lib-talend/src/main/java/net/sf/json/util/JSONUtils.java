@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.beanutils.DynaBean;
+
 import net.sf.ezmorph.MorphUtils;
 import net.sf.ezmorph.MorpherRegistry;
 import net.sf.ezmorph.bean.MorphDynaBean;
@@ -36,9 +38,8 @@ import net.sf.json.JSONNull;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONString;
 import net.sf.json.JsonConfig;
+import net.sf.json.JsonStandard;
 import net.sf.json.regexp.RegexpUtils;
-
-import org.apache.commons.beanutils.DynaBean;
 
 /**
  * Provides useful methods on java objects and JSON values.
@@ -756,7 +757,47 @@ public final class JSONUtils {
       return quote( value.toString() );
    }
 
-   /**
+    public static String jsonToStandardizedString(JSONObject json, JsonStandard standart) {
+       switch (standart) {
+           case WRAP_NULL_STRINGS:
+               if (json.values().contains("null")) {
+                   if( json.isNullObject() ){
+                       return JSONNull.getInstance()
+                               .toString();
+                   }
+                   try{
+                       Iterator keys = json.keys();
+                       StringBuffer sb = new StringBuffer( "{" );
+
+                       while( keys.hasNext() ){
+                           if( sb.length() > 1 ){
+                               sb.append( ',' );
+                           }
+                           Object o = keys.next();
+                           sb.append( quote( o.toString() ) );
+                           sb.append( ':' );
+                           sb.append( valueToStringWrappedNullStrings( json.get(o) ) );
+                       }
+                       sb.append( '}' );
+                       return sb.toString();
+                   }catch( Exception e ){
+                       return null;
+                   }
+               }
+           default:
+               return json.toString();
+       }
+   }
+
+    private static String valueToStringWrappedNullStrings(Object o) {
+        if ("null".equals(o)) {
+            return quote(o.toString());
+        } else {
+            return valueToString(o);
+        }
+    }
+
+    /**
     * Finds out if n represents a BigInteger
     *
     * @return true if n is instanceOf BigInteger or the literal value can be
