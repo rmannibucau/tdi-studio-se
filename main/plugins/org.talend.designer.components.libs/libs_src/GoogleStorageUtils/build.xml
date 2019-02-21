@@ -5,7 +5,7 @@
 	<!-- #################################################### -->
 
 	<!-- modification 1: config -->
-	<property name="jar.name" value="GoogleStorageUtils.jar" />
+	<property name="jar.name" value="GoogleStorageUtils-1.0.jar" />
 	<property name="component.name" value="tGSPut" />
 	<property name="author.name" value="jzhao" />
 	
