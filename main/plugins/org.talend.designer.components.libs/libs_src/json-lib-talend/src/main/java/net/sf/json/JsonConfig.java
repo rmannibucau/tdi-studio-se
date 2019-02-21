@@ -109,7 +109,7 @@ public class JsonConfig {
    private Map typeMap = new HashMap();
    private List ignoreFieldAnnotations = new ArrayList();
    private boolean allowNonStringKeys = false;
-   private JsonStandard jsonStandard = JsonStandard.DEFAULT;
+   private JsonStandard jsonStandard = JsonStandard.LEGACY;
 
    public JsonConfig() {
    }

@@ -2,9 +2,9 @@ package net.sf.json;
 
 public enum JsonStandard {
     /**
-     * Default standard used to exist before
+     * Out of date standard used to be default before
      */
-    DEFAULT,
+    LEGACY,
 
     /**
      * Updated standard due to RFC 7159 to not unwrap "null" strings (keep quotations)
