@@ -38,7 +38,6 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
@@ -47,6 +46,7 @@ import org.osgi.framework.ServiceReference;
 import org.talend.commons.CommonsPlugin;
 import org.talend.commons.exception.CommonExceptionHandler;
 import org.talend.commons.exception.PersistenceException;
+import org.talend.commons.ui.gmf.util.DisplayUtils;
 import org.talend.commons.ui.runtime.exception.ExceptionHandler;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.core.CorePlugin;
@@ -1474,8 +1474,8 @@ public class Node extends Element implements IGraphicalNode {
                         } else { // add for feature TDI-17358
                             IMetadataTable sourceTable = connection.getMetadataTable();
                             if (sourceTable != null) {
-                                MetadataDialog dialog = new MetadataDialog(new Shell(), sourceTable.clone(),
-                                        connection.getSource(), null);
+                                MetadataDialog dialog = new MetadataDialog(DisplayUtils.getDefaultShell(false),
+                                        sourceTable.clone(), connection.getSource(), null);
                                 dialog.setInputReadOnly(false);
                                 dialog.setOutputReadOnly(false);
                                 if (dialog.open() == MetadataDialog.OK) {
@@ -1508,7 +1508,7 @@ public class Node extends Element implements IGraphicalNode {
     }
 
     private boolean getTakeSchema() {
-        return MessageDialog.openQuestion(new Shell(), "", Messages.getString("Node.getSchemaOrNot")); //$NON-NLS-1$ //$NON-NLS-2$
+        return MessageDialog.openQuestion(DisplayUtils.getDefaultShell(false), "", Messages.getString("Node.getSchemaOrNot")); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     @Override
