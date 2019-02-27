@@ -767,7 +767,7 @@ public final class JSONUtils {
                    }
                    try{
                        Iterator keys = json.keys();
-                       StringBuffer sb = new StringBuffer( "{" );
+                       StringBuilder sb = new StringBuilder( "{" );
 
                        while( keys.hasNext() ){
                            if( sb.length() > 1 ){
