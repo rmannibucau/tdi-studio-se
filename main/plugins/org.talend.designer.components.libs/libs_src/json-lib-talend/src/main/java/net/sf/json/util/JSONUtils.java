@@ -125,7 +125,7 @@ public final class JSONUtils {
    public static String getFunctionBody( String function ) {
       return RegexpUtils.getMatcher( FUNCTION_BODY_PATTERN, true ).getGroupIfMatches( function, 1 );
    }
-   
+
    /**
     * Returns the params of a function literal.
     */
@@ -608,7 +608,7 @@ public final class JSONUtils {
       return input.startsWith( SINGLE_QUOTE ) && input.endsWith( SINGLE_QUOTE ) ||
          input.startsWith( DOUBLE_QUOTE ) && input.endsWith( DOUBLE_QUOTE );
    }
-   
+
    public static boolean isJsonKeyword( String input, JsonConfig jsonConfig ) {
       if( input == null ){
          return false;
@@ -618,7 +618,7 @@ public final class JSONUtils {
               "false".equals( input ) ||
               (jsonConfig.isJavascriptCompliant() && "undefined".equals( input ));
    }
-   
+
    /**
     * Throw an exception if the object is an NaN or infinite number.
     *
@@ -757,38 +757,45 @@ public final class JSONUtils {
       return quote( value.toString() );
    }
 
-    public static String jsonToStandardizedString(JSONObject json, JsonStandard standart) {
-       switch (standart) {
-           case WRAP_NULL_STRINGS:
-               if (json.values().contains("null")) {
-                   if( json.isNullObject() ){
-                       return JSONNull.getInstance()
-                               .toString();
-                   }
-                   try{
-                       Iterator keys = json.keys();
-                       StringBuilder sb = new StringBuilder( "{" );
-
-                       while( keys.hasNext() ){
-                           if( sb.length() > 1 ){
-                               sb.append( ',' );
-                           }
-                           Object o = keys.next();
-                           sb.append( quote( o.toString() ) );
-                           sb.append( ':' );
-                           sb.append( valueToStringWrappedNullStrings( json.get(o) ) );
-                       }
-                       sb.append( '}' );
-                       return sb.toString();
-                   }catch( Exception e ){
-                       return null;
-                   }
-               }
-           default:
-               return json.toString();
+    public static String jsonToStandardizedString(JSONObject json, JsonStandard standard) {
+       switch (standard) {
+            case WRAP_NULL_STRINGS:
+                if (json.values().contains("null")) {
+                    return jsonToWrappedNullStrings(json);
+                }
+            default:
+                return json.toString();
        }
    }
 
+    /**
+     *
+     * @return plain String from JSONObject (@see JSONObject#toString()), but wrap null strings to quotation
+     */
+    private static String jsonToWrappedNullStrings(JSONObject json) {
+        if (json.isNullObject()) {
+            return JSONNull.getInstance()
+                    .toString();
+        }
+        try {
+            Iterator keys = json.keys();
+            StringBuilder sb = new StringBuilder("{");
+
+            while (keys.hasNext()) {
+                if (sb.length() > 1) {
+                    sb.append(',');
+                }
+                Object o = keys.next();
+                sb.append(quote(o.toString()));
+                sb.append(':');
+                sb.append(valueToStringWrappedNullStrings(json.get(o)));
+            }
+            sb.append('}');
+            return sb.toString();
+        } catch (Exception e) {
+            return null;
+        }
+    }
     private static String valueToStringWrappedNullStrings(Object o) {
         if ("null".equals(o)) {
             return quote(o.toString());
