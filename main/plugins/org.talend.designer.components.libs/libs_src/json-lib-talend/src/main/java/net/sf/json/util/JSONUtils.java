@@ -760,9 +760,7 @@ public final class JSONUtils {
     public static String jsonToStandardizedString(JSONObject json, JsonStandard standard) {
        switch (standard) {
             case WRAP_NULL_STRINGS:
-                if (json.values().contains("null")) {
-                    return jsonToWrappedNullStrings(json);
-                }
+               return jsonToWrappedNullStrings(json);
             default:
                 return json.toString();
        }
@@ -799,6 +797,8 @@ public final class JSONUtils {
     private static String valueToStringWrappedNullStrings(Object o) {
         if ("null".equals(o)) {
             return quote(o.toString());
+        } else if (o instanceof JSONObject) {
+           return jsonToWrappedNullStrings((JSONObject) o);
         } else {
             return valueToString(o);
         }
