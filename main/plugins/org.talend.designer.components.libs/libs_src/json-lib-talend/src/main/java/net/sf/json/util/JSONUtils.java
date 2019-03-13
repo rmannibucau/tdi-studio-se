@@ -766,6 +766,7 @@ public final class JSONUtils {
        }
    }
 
+
     /**
      *
      * @return plain String from JSONObject (@see JSONObject#toString()), but wrap null strings to quotation
@@ -794,9 +795,26 @@ public final class JSONUtils {
             return null;
         }
     }
-    private static String valueToStringWrappedNullStrings(Object o) {
+
+   private static String jsonArrayToWrappedNullStrings(JSONArray jsonArray) {
+      final String separator = ",";
+      StringBuilder sb = new StringBuilder("[");
+
+      for (int i = 0; i < jsonArray.size(); i++) {
+         if (i > 0) {
+            sb.append(separator);
+         }
+         sb.append(JSONUtils.valueToStringWrappedNullStrings(jsonArray.get(i)));
+      }
+
+      return sb.append("]").toString();
+   }
+
+   private static String valueToStringWrappedNullStrings(Object o) {
         if ("null".equals(o)) {
             return quote(o.toString());
+        } else if (o instanceof JSONArray) {
+           return jsonArrayToWrappedNullStrings((JSONArray) o);
         } else if (o instanceof JSONObject) {
            return jsonToWrappedNullStrings((JSONObject) o);
         } else {

@@ -373,17 +373,19 @@ public class XMLSerializer {
             return JSONNull.getInstance();
          }
          String defaultType = getType( root, JSONTypes.STRING );
+         JsonConfig config = new JsonConfig();
+         config.setJsonStandard(jsonStandard);
          if( isArray( root, true ) ){
             json = processArrayElement( root, defaultType );
             if( forceTopLevelObject ){
                String key = removeNamespacePrefix( root.getQualifiedName() );
-               json = new JSONObject().element( key, json );
+               json = new JSONObject().element(key, json, config);
             }
          }else{
             json = processObjectElement( root, defaultType );
             if( forceTopLevelObject ){
                String key = removeNamespacePrefix( root.getQualifiedName() );
-               json = new JSONObject().element( key, json );
+               json = new JSONObject().element(key, json, config);
             }
          }
       }catch( JSONException jsone ){
@@ -1267,15 +1269,15 @@ public class XMLSerializer {
    }
 
    private void setOrAccumulate( JSONObject jsonObject, String key, Object value ) {
+      JsonConfig config = new JsonConfig();
+      config.setJsonStandard(jsonStandard);
       if( jsonObject.has( key ) ){
-         jsonObject.accumulate( key, value );
+         jsonObject.accumulate(key, value, config);
          Object val = jsonObject.get( key );
          if( val instanceof JSONArray ){
             ((JSONArray) val).setExpandElements( true );
          }
       }else{
-         JsonConfig config = new JsonConfig();
-         config.setJsonStandard(jsonStandard);
          jsonObject.element( key, value, config);
       }
    }

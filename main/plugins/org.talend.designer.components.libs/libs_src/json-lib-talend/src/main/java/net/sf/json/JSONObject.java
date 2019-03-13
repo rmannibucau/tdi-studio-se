@@ -2549,7 +2549,7 @@ public final class JSONObject extends AbstractJSON implements JSON, Map, Compara
          if( o instanceof JSONArray ){
             ((JSONArray) o).element( value, jsonConfig );
          }else{
-            setInternal( key, new JSONArray().element( o )
+            setInternal( key, new JSONArray().element( o, jsonConfig )
                   .element( value, jsonConfig ), jsonConfig );
          }
       }
