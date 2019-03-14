@@ -1286,9 +1286,10 @@ public class XMLSerializer {
       String clazz = getClass( element );
       String type = getType( element );
       type = (type == null) ? defaultType : type;
-
+      JsonConfig config = new JsonConfig();
+      config.setJsonStandard(jsonStandard);
       if( hasNamespaces( element ) && !skipNamespaces ){
-         jsonArray.element( simplifyValue( null, processElement( element, type ) ) );
+         jsonArray.element(simplifyValue(null, processElement(element, type)), config);
          return;
       }else if( element.getAttributeCount() > 0 ){
          if( isFunction( element ) ){
@@ -1296,10 +1297,10 @@ public class XMLSerializer {
             String[] params = null;
             String text = element.getValue();
             params = StringUtils.split( paramsAttribute.getValue(), "," );
-            jsonArray.element( new JSONFunction( params, text ) );
+            jsonArray.element(new JSONFunction(params, text));
             return;
          }else{
-            jsonArray.element( simplifyValue( null, processElement( element, type ) ) );
+            jsonArray.element(simplifyValue(null, processElement(element, type)), config);
             return;
          }
       }
@@ -1307,10 +1308,10 @@ public class XMLSerializer {
       boolean classProcessed = false;
       if( clazz != null ){
          if( clazz.compareToIgnoreCase( JSONTypes.ARRAY ) == 0 ){
-            jsonArray.element( processArrayElement( element, type ) );
+            jsonArray.element(processArrayElement(element, type), config);
             classProcessed = true;
          }else if( clazz.compareToIgnoreCase( JSONTypes.OBJECT ) == 0 ){
-            jsonArray.element( simplifyValue( null, processObjectElement( element, type ) ) );
+            jsonArray.element(simplifyValue(null, processObjectElement( element, type)), config);
             classProcessed = true;
          }
       }
@@ -1346,12 +1347,12 @@ public class XMLSerializer {
                jsonArray.element( new JSONFunction( params, text ) );
             }else{
                if( isArray( element, false ) ){
-                  jsonArray.element( processArrayElement( element, defaultType ) );
+                  jsonArray.element(processArrayElement(element, defaultType), config);
                }else if( isObject( element, false ) ){
-                  jsonArray.element( simplifyValue( null, processObjectElement( element,
-                        defaultType ) ) );
+                  jsonArray.element(simplifyValue(null, processObjectElement(element,
+                        defaultType)), config);
                }else{
-                  jsonArray.element( trimSpaceFromValue( element.getValue() ) );
+                  jsonArray.element(trimSpaceFromValue(element.getValue()), config);
                }
             }
          }
