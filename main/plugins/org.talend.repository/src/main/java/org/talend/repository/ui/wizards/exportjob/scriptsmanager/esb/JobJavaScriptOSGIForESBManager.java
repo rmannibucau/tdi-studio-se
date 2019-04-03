@@ -738,6 +738,10 @@ public class JobJavaScriptOSGIForESBManager extends JobJavaScriptsManager {
                 IFile srcFile = talendProcessJavaProject.getSrcFolder().getFile(src);
                 Set<String> imports = importCompiler(srcFile.getLocation().toString());
                 String[] defaultPackages = analyzer.getProperty(Analyzer.IMPORT_PACKAGE).split(",");
+
+                // JDK upgrade to 11
+                imports.add("org.osgi.framework");
+
                 for (String dp : defaultPackages) {
                     if (!imports.contains(dp) && !imports.contains(dp + optional)) {
                         imports.add(dp);
@@ -750,6 +754,7 @@ public class JobJavaScriptOSGIForESBManager extends JobJavaScriptsManager {
                 for (String packageName : imports) {
                     importPackage.append(packageName).append(',');
                 }
+
                 importPackage.append("*;resolution:=optional");
                 analyzer.setProperty(Analyzer.IMPORT_PACKAGE, importPackage.toString());
             }   
