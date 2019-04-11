@@ -490,6 +490,7 @@ public class ProcessManager implements AutoCloseable {
         // we use the Cli as main so we need it
         paths.add(mvnResolver.apply("commons-cli:commons-cli:jar:" + GAV.INSTANCE.getCliVersion()).toURI().toURL());
         paths.add(mvnResolver.apply("org.slf4j:slf4j-jdk14:jar:" + GAV.INSTANCE.getSlf4jVersion()).toURI().toURL());
+        paths.add(mvnResolver.apply("javax.xml.bind:jaxb-api:jar:2.3.1").toURI().toURL());
         // server
         paths.add(serverJar.toURI().toURL());
         final int originalPaths = paths.size();
