@@ -35,6 +35,7 @@ public class DataMapExpressionParserTest {
         verifyParseResult("schema.context.table.column");
         verifyParseResult("schema.table.column");
         verifyParseResult("table.column");
+        verifyParseResult("table.\\\"column\\\"");
         // test expression with blanks
         verifyParseResult(" context .  schema. context . table.column");
         verifyParseResult(" schema . context .table .column");
